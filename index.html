@@ -1,0 +1,41 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexedDB</title>
+</head>
+<body>
+    <label for="txtDB">DB: </label><input type = "text" value="notes" id="txtDB">
+    <label for="">Version</label><input type="number" maxlength="1" min="1" id="versionDB">
+    <button id="btnCreateDB">CreateDB</button>
+    <script>
+
+        const btnCreateDB = document.querySelector("#btnCreateDB")
+        btnCreateDB.addEventListener("click",CreateDB)
+
+        function CreateDB(){
+
+            const dbName = document.querySelector("#txtDB").value
+            const dbVersion = document.querySelector("#versionDB").value
+
+            const request = indexedDB.open("notes",dbVersion||1);
+            
+            // on upgrade needed
+        request.onupgradeneeded = e =>{
+            alert("upgrade is called")
+        }
+
+        // on success
+        request.onsuccess = e =>{
+            alert("success is called")
+        }
+        
+        // on error
+        request.onerror = e =>{
+            alert(`error ! ${e.target.error}`)
+        }
+    }
+    </script>
+</body>
+</html>
