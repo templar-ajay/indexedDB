@@ -14,15 +14,21 @@
         const btnCreateDB = document.querySelector("#btnCreateDB")
         btnCreateDB.addEventListener("click",CreateDB)
 
+        
+
         function CreateDB(){
 
             const dbName = document.querySelector("#txtDB").value
             const dbVersion = document.querySelector("#versionDB").value
 
-            const request = indexedDB.open("notes",dbVersion||1);
+            const request = indexedDB.open(dbName,dbVersion||1);
             
             // on upgrade needed
         request.onupgradeneeded = e =>{
+            // const db = e.target.result; //e.target is the request , also use request.result
+            const db = request.result;
+            console.log(`db`,db);
+             
             alert("upgrade is called")
         }
 
