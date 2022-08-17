@@ -4,6 +4,8 @@
 
 ![flowchart of working of indexedDB](./flowchart.png)
 
+Specify database schema , open a connection with your database and then retrieve and update data within a series of transactions.
+
 ## Open a database
 
 `const request = indexedDB.open(dbName,dbVersion)`
@@ -116,3 +118,17 @@ function viewNotes() {
   };
 }
 ```
+
+# Full Methods
+
+#### source MDN
+
+## 1. Connecting to a database
+
+1. IDBFactory
+
+   - IDBFactory.open()
+   - IDBFactory.deleteDatabase()
+   - IDBFactory.cmp() _compares two keys and returns result indicting the greater one_ - _used in Web Workers_
+
+## 2. Retrieving and Modifying Data
