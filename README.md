@@ -17,7 +17,7 @@ Specify database schema , open a connection with your database and then retrieve
     - onsuccess
 
 ```js
-request.onupgradeneeded = (e) => {};
+request.onupgradeneeded = (e) => {}; // on each version create you have to create dataStores again and enter the data again in them
 request.error = (e) => {};
 request.success = (e) => console.log(`error ! ${e.target.error}`);
 ```

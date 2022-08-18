@@ -1,0 +1,139 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDN example</title>
+  </head>
+  <body>
+    <script>
+      // This is what our customer data looks like.
+      const customerData = [
+        {
+          ssn: "444-44-4444",
+          name: "Bill",
+          age: 35,
+          email: "bill@company.com",
+        },
+        {
+          ssn: "555-55-5555",
+          name: "Donna",
+          age: 32,
+          email: "donna@home.org",
+        },
+      ];
+
+      const openIndexedDBRequest = indexedDB.open("Data", 1);
+      openIndexedDBRequest.onupgradeneeded = (e) => {
+        const db = e.target.result;
+
+        const objectStore = db.createObjectStore("customers", {
+          keyPath: "ssn",
+        });
+
+        objectStore.createIndex("name", "name", { unique: false });
+        objectStore.createIndex("age", "age", { unique: false });
+        objectStore.createIndex("email", "email", { unique: true });
+
+        objectStore.transaction.oncomplete = (e) => {
+          const tx = db.transaction("customers", "readwrite");
+          const customerObjectStore = tx.objectStore("customers");
+
+          customerData.forEach((customer) => {
+            customerObjectStore.add(customer);
+          });
+
+          // Delete "444-44-4444"
+          //   deleteData("444-44-4444");
+        };
+
+        function deleteData(data) {
+          const request = db
+            .transaction("customers", "readwrite")
+            .objectStore("customers")
+            .delete(data);
+          request.onsuccess = (e) => {
+            console.log(`${data} is gone`);
+          };
+          request.onerror = (e) => {
+            console.log(`Error!!! ${e.target.error}`);
+          };
+        }
+        console.log(
+          `created database`,
+          db.name,
+          `objectStore Created`,
+          objectStore.name
+        );
+      };
+      openIndexedDBRequest.onsuccess = (e) => {
+        const db = e.target.result;
+
+        playingWithCursor(db);
+
+        const tx = db.transaction("customers", "readwrite");
+        const objectStore = tx.objectStore("customers");
+        const getRequest = objectStore.get("444-44-4444");
+
+        getRequest.onerror = (e) => {
+          console.log(`ERRor!!! ${e.target.error}`);
+        };
+
+        getRequest.onsuccess = (e) => {
+          const data = e.target.result;
+
+          // data.ssn = "SG059"; // // cannot update the ssn because it is keyPath
+          data["name"] = "Ajay";
+          data.age = 22;
+          data.email = "ajaychaudhary@spicegems.com";
+
+          const requestUpdate = objectStore.put(data);
+
+          requestUpdate.onerror = (e) => {
+            console.log(
+              `The data is could n't be updated Error !!! ${e.target.error} `
+            );
+          };
+        };
+      };
+      function readDatabase(key, db) {
+        // const tx = db.transaction(["customers"]);
+        // const objectStore = tx.objectStore("customers");
+        // const request = objectStore.get(key);
+        // request.oncomplete = (e) => {
+        //   console.log(e.target.result);
+        // };
+        // request.onerror = (e) => {
+        //   console.log(`Error reading data !!! ${e.target.error}`);
+        // };
+
+        const transaction = db.transaction(["customers"]);
+        const objectStore = transaction.objectStore("customers");
+        const request = objectStore.get(key);
+        request.onerror = (event) => {
+          // Handle errors!
+        };
+        request.onsuccess = (event) => {
+          // Do something with the request.result!
+          console.log(` SSN ${key} = `, request.result);
+        };
+      }
+
+      function playingWithCursor(db) {
+        const objectStore = db
+          .transaction("customers")
+          .objectStore("customers");
+
+        objectStore.openCursor().onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            console.log(`Name of SSN ${cursor.key} is ${cursor.value.name}`);
+            cursor.continue();
+          } else {
+            console.log("no more entries");
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
